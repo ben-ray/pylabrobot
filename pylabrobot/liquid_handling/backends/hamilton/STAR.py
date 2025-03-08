@@ -1131,8 +1131,8 @@ class STAR(HamiltonLiquidHandler):
     device_address: Optional[int] = None,
     serial_number: Optional[str] = None,
     packet_read_timeout: int = 3,
-    read_timeout: int = 30,
-    write_timeout: int = 30,
+    read_timeout: int = 120,
+    write_timeout: int = 120,
   ):
     """Create a new STAR interface.
 
@@ -4064,7 +4064,7 @@ class STAR(HamiltonLiquidHandler):
       module="C0",
       command="TP",
       tip_pattern=tip_pattern,
-      read_timeout=60,
+      read_timeout=120,
       xp=[f"{x:05}" for x in x_positions],
       yp=[f"{y:04}" for y in y_positions],
       tm=tip_pattern,
@@ -4384,7 +4384,7 @@ class STAR(HamiltonLiquidHandler):
       module="C0",
       command="AS",
       tip_pattern=tip_pattern,
-      read_timeout=max(60, self.read_timeout),
+      read_timeout=max(120, self.read_timeout),
       at=[f"{at:01}" for at in aspiration_type],
       tm=tip_pattern,
       xp=[f"{xp:05}" for xp in x_positions],
@@ -4427,8 +4427,8 @@ class STAR(HamiltonLiquidHandler):
       se=[f"{se:04}" for se in dosing_drive_speed_during_2nd_section_search],
       sz=[f"{sz:04}" for sz in z_drive_speed_during_2nd_section_search],
       io=[f"{io:04}" for io in cup_upper_edge],
-      il=[f"{il:05}" for il in ratio_liquid_rise_to_tip_deep_in],
-      in_=[f"{in_:04}" for in_ in immersion_depth_2nd_section],
+      # il=[f"{il:05}" for il in ratio_liquid_rise_to_tip_deep_in],
+      # in_=[f"{in_:04}" for in_ in immersion_depth_2nd_section],
     )
 
   @need_iswap_parked
@@ -4618,7 +4618,7 @@ class STAR(HamiltonLiquidHandler):
       module="C0",
       command="DS",
       tip_pattern=tip_pattern,
-      read_timeout=max(60, self.read_timeout),
+      read_timeout=max(120, self.read_timeout),
       dm=[f"{dm:01}" for dm in dispensing_mode],
       tm=[f"{tm:01}" for tm in tip_pattern],
       xp=[f"{xp:05}" for xp in x_positions],
@@ -7678,6 +7678,14 @@ class STAR(HamiltonLiquidHandler):
       channel_locations[i] - channel_locations[i + 1] >= 9
       for i in range(len(channel_locations) - 1)
     ):
+      print(channel_locations)
+      differences = [
+        channel_locations[i] - channel_locations[i + 1]
+        for i in range(len(channel_locations) - 1)
+      ]
+      print(f"Channel locations: {channel_locations}")
+      print(f"Differences between consecutive channels: {differences}")
+
       raise ValueError("Channels must be at least 9mm apart and in descending order")
 
     yp = " ".join([f"{round(y*10):04}" for y in channel_locations.values()])
@@ -7736,6 +7744,7 @@ class STAR(HamiltonLiquidHandler):
     ys: List[float]
     z: float
     if isinstance(wells, Well):
+      print("single well")
       well = wells
       x, y, z = well.get_absolute_location("c", "c", "cavity_bottom")
 
@@ -7757,6 +7766,8 @@ class STAR(HamiltonLiquidHandler):
       z = wells[0].get_absolute_location(z="cavity_bottom").z
 
     await self.move_channel_x(0, x=x)
+
+    print("ys", ys)
 
     await self.position_channels_in_y_direction(
       {channel: y for channel, y in zip(piercing_channels, ys)}
@@ -7819,8 +7830,24 @@ class STAR(HamiltonLiquidHandler):
       )
 
     # Get the absolute locations for center front top and center back top
-    back_location = well.get_absolute_location("c", "b", "t")
-    front_location = well.get_absolute_location("c", "f", "t")
+    if well.get_absolute_rotation().z % 180 == 0:
+      back_location = well.get_absolute_location("c", "b", "t")
+      front_location = well.get_absolute_location("c", "f", "t")
+    elif well.get_absolute_rotation().z % 180 == 90:
+      print("turnt plate ")
+      back_location = well.get_absolute_location("r", "c", "t")
+      front_location = well.get_absolute_location("l", "c", "t")
+    else:
+      raise ValueError("Rotation of well must be 0 or 90 degrees")
+    
+    print("front_location", front_location)
+    print("back_location", back_location)
+    
+    print("front_location y", front_location.y, front_location.y + move_inwards)
+    print("back_location y", back_location.y, back_location.y - move_inwards)
+
+    print("front_location x", front_location.x, front_location.x + move_inwards)
+    print("back_location x", back_location.x, back_location.x - move_inwards)
 
     try:
       # Then move all channels in the y-space simultaneously.

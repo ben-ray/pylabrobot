@@ -72,7 +72,7 @@ def AGenBio_1_troughplate_190000uL_Fl(name: str, lid: Optional[Lid] = None) -> P
   - Material: Polypropylene
   - Max. volume: 190 mL
   """
-  INNER_WELL_WIDTH = 107.2  # measured
+  INNER_WELL_WIDTH = 108.2  # measured
   INNER_WELL_HEIGHT = 70.9  # measured
 
   well_kwargs = {
@@ -105,7 +105,7 @@ def AGenBio_1_troughplate_190000uL_Fl(name: str, lid: Optional[Lid] = None) -> P
       Well,
       num_items_x=1,
       num_items_y=1,
-      dx=9.8,
+      dx=10.5,
       dy=7.6,
       dz=5.88,
       item_dx=INNER_WELL_WIDTH,

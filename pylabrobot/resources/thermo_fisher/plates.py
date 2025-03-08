@@ -1,5 +1,6 @@
 """Thermo Fisher Scientific  Inc. (and all its brand) plates"""
 
+import math
 from pylabrobot.resources.height_volume_functions import (
   calculate_liquid_height_in_container_2segments_square_ubottom,
   calculate_liquid_volume_container_2segments_square_ubottom,
@@ -250,7 +251,7 @@ def Thermo_Nunc_96_well_plate_1300uL_Rb(name: str) -> Plate:
   - Diagram: https://assets.thermofisher.com/TFS-Assets/LSG/manuals/D03011.pdf
   """
   
-  well_diameter = 8.40  # measured
+  well_diameter = 8.00  # measured
   return Plate(
     name=name,
     size_x=127.76,  # from definition, A
@@ -271,7 +272,7 @@ def Thermo_Nunc_96_well_plate_1300uL_Rb(name: str) -> Plate:
       size_y=well_diameter,
       size_z=31.6 - 1.4,  # from definition, F - N
       bottom_type=WellBottomType.U,
-      material_z_thickness=1.1, # from definition, F - L - N
+      material_z_thickness=1.1, # from definition, F - L - N 
       cross_section_type=CrossSectionType.CIRCLE,
-    ),
-  )
+      compute_height_from_volume = lambda liquid_volume: liquid_volume / (math.pi * ((well_diameter/2)**2))),
+    )
