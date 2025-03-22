@@ -188,7 +188,7 @@ class PlateHolder(ResourceHolder):
         )
     elif not isinstance(resource, (Plate, PlateAdapter, Lid)):
       raise TypeError(
-        "PlateHolder can only store Plate, PlateAdapter or ResourceStack "
+        "PlateHolder can only store Plate, PlateAdapter, Lid or ResourceStack "
         + f"resources, not {type(resource)}"
       )
     if isinstance(resource, Plate) and resource.plate_type != "skirted":

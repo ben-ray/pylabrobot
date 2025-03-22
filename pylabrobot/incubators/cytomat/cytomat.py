@@ -142,9 +142,17 @@ class Cytomat(IncubatorBackend):
     return OverviewRegisterState.from_resp(resp)
 
   def _site_to_firmware_string(self, site: PlateHolder) -> str:
+    
+
     rack = cast(PlateCarrier, site.parent)
+
+    print("Rack from site:", rack)
+    print("Available racks:", self._racks)
+    print("Match found?", any(r is rack for r in self._racks))
     rack_idx = self._racks.index(rack)
     site_idx = next(idx for idx, s in rack.sites.items() if s == site)
+
+    
 
     if self.model in [CytomatType.C2C_425]:
       return f"{str(rack_idx).zfill(2)} {str(site_idx).zfill(2)}"

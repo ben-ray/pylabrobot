@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from typing import Optional
 
 from pylabrobot.liquid_handling.backends import LiquidHandlerBackend
@@ -89,5 +90,31 @@ class STARChatterboxBackend(STAR):
     print(command)
     return None
 
+  async def pierce_foil(self, wells, piercing_channels, hold_down_channels, move_inwards, distance_from_bottom, spread):
+    print("piercing foil")
+
+  async def step_off_foil(self, wells, back_channel, front_channel, move_inwards, move_height: int = 20):
+    print("stepping off foil")
+
   async def request_z_pos_channel_n(self, channel: int) -> float:
     return 285.0
+  
+  # async def get_channels_z_positions(self):
+  #   return {i: 285.0 for i in range(0, self.num_channels)}
+  
+  # async def get_channels_y_positions(self):
+  #   return {i: 600.0 - 25*i for i in range(0, self.num_channels)}
+  
+
+  @asynccontextmanager
+  async def slow_iswap(self, wrist_velocity: int = 20_000, gripper_velocity: int = 20_000):
+      """A context manager that sets the iSWAP to slow speed during the context"""
+      assert 20 <= gripper_velocity <= 75_000
+      assert 20 <= wrist_velocity <= 65_000
+
+      print("Setting iSWAP to slow speed")
+      
+      try:
+          yield
+      finally:
+          print("Resetting iSWAP speed to default speed")

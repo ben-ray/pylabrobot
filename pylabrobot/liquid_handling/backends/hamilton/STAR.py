@@ -1836,6 +1836,7 @@ class STAR(HamiltonLiquidHandler):
     ratio_liquid_rise_to_tip_deep_in = _fill_in_defaults(ratio_liquid_rise_to_tip_deep_in, [0] * n)
     immersion_depth_2nd_section = _fill_in_defaults(immersion_depth_2nd_section, [0] * n)
 
+    print()
     try:
       return await self.aspirate_pip(
         aspiration_type=[0 for _ in range(n)],
@@ -2665,6 +2666,8 @@ class STAR(HamiltonLiquidHandler):
 
     if self.core_parked:
       await self.get_core(p1=channel_1, p2=channel_2)
+
+    print("core pickup loc:", center)
 
     await self.core_get_plate(
       x_position=round(center.x * 10),
@@ -4418,8 +4421,8 @@ class STAR(HamiltonLiquidHandler):
       se=[f"{se:04}" for se in dosing_drive_speed_during_2nd_section_search],
       sz=[f"{sz:04}" for sz in z_drive_speed_during_2nd_section_search],
       io=[f"{io:04}" for io in cup_upper_edge],
-      il=[f"{il:05}" for il in ratio_liquid_rise_to_tip_deep_in],
-      in_=[f"{in_:04}" for in_ in immersion_depth_2nd_section],
+      # il=[f"{il:05}" for il in ratio_liquid_rise_to_tip_deep_in],
+      # in_=[f"{in_:04}" for in_ in immersion_depth_2nd_section],
     )
 
   @need_iswap_parked
@@ -7665,6 +7668,7 @@ class STAR(HamiltonLiquidHandler):
     if channel_locations[self.num_channels - 1] < 6:
       raise ValueError("Channel N would hit the front of the robot")
 
+    print(channel_locations)
     if not all(
       int((channel_locations[i] - channel_locations[i + 1]) * 1000) >= 8_999  # float fixing
       for i in range(len(channel_locations) - 1)

@@ -16,6 +16,10 @@ def _get_centers_with_margin(dim_size: float, n: int, margin: float, min_spacing
     remaining_space = dim_size - (n - 1) * min_spacing - margin * 2
     return [margin + remaining_space / 2 + i * min_spacing for i in range(n)]
   return [(i + 1) * dim_size / (n + 1) for i in range(n)]
+  # start = margin
+  # end = dim_size - margin
+  # step = (end - start) / (n - 1) if n > 1 else 0
+  # return [start + i * step for i in range(n)]
 
 
 def get_wide_single_resource_liquid_op_offsets(

@@ -392,6 +392,7 @@ class HamiltonLiquidHandler(LiquidHandlerBackend, metaclass=ABCMeta):
 
     # check that the minimum d between any two y positions is >9mm
     # O(n^2) search is not great but this is most readable, and the max size is 16, so it's fine.
+    print(y_positions)
     for channel_idx1, (x1, y1) in enumerate(zip(x_positions, y_positions)):
       for channel_idx2, (x2, y2) in enumerate(zip(x_positions, y_positions)):
         if channel_idx1 == channel_idx2:

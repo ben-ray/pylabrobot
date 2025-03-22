@@ -200,10 +200,11 @@ class HamiltonDeck(Deck, metaclass=ABCMeta):
               < og_y + og_resource.get_absolute_size_y(),
             ]
           ):
-            raise ValueError(
-              f"Location {resource_location} is already occupied by resource "
-              f"'{og_resource.name}'."
-            )
+            # raise ValueError(
+            #   f"Location {resource_location} is already occupied by resource "
+            #   f"'{og_resource.name}'."
+            # )
+            pass
 
     return super().assign_child_resource(resource, location=resource_location, reassign=reassign)
 
