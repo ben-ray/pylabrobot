@@ -1836,7 +1836,6 @@ class STAR(HamiltonLiquidHandler):
     ratio_liquid_rise_to_tip_deep_in = _fill_in_defaults(ratio_liquid_rise_to_tip_deep_in, [0] * n)
     immersion_depth_2nd_section = _fill_in_defaults(immersion_depth_2nd_section, [0] * n)
 
-    print()
     try:
       return await self.aspirate_pip(
         aspiration_type=[0 for _ in range(n)],
@@ -2666,8 +2665,6 @@ class STAR(HamiltonLiquidHandler):
 
     if self.core_parked:
       await self.get_core(p1=channel_1, p2=channel_2)
-
-    print("core pickup loc:", center)
 
     await self.core_get_plate(
       x_position=round(center.x * 10),

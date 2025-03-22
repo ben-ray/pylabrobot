@@ -66,6 +66,7 @@ def MFX_CAR_L4_SHAKER(name: str, modules: Dict[int, ResourceHolder]) -> MFXCarri
     model="PLT_CAR_L4_SHAKER",
   )
 
+
 def MFX_CAR_P3_SHAKER(name: str, modules: Dict[int, ResourceHolder]) -> MFXCarrier:
   """Hamilton cat. no.: 187001
   Sometimes referred to as "PLT_CAR_L4_SHAKER" by Hamilton, this one has extra holes for portrait orientation shakers.
@@ -95,7 +96,6 @@ def MFX_CAR_P3_SHAKER(name: str, modules: Dict[int, ResourceHolder]) -> MFXCarri
     sites=sites,
     model="MFX_CAR_P3_SHAKER",
   )
-
 
 
 def MFX_CAR_P3_base(name: str, modules: Dict[int, ResourceHolder]) -> MFXCarrier:
