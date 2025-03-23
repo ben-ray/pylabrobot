@@ -103,11 +103,17 @@ def MFX_CAR_P3_base(name: str, modules: Dict[int, ResourceHolder]) -> MFXCarrier
   Labware carrier base for up to 3 Multiflex Modules in Portrait orientation
   Does not support half-indices
   Occupies 5 tracks (5T)
+  134.2 wide, 11.8mm apart
+  34.2 from front
+  pos 0
+  pos 1 
+  from hammy def:
+  146 apart
   """
   locations = [
     Coordinate(19.3, 33.7, 18.195),
-    Coordinate(19.3, 180.7, 18.195),
-    Coordinate(19.3, 327.7, 18.195),
+    Coordinate(19.3, 179.7, 18.195),
+    Coordinate(19.3, 325.7, 18.195),
   ]
   sites: Dict[int, ResourceHolder] = {}
   for i, module in modules.items():
