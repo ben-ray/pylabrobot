@@ -2,8 +2,9 @@ from typing import Optional
 
 from pylabrobot.liquid_handling.backends import LiquidHandlerBackend
 from pylabrobot.liquid_handling.backends.hamilton.STAR import STAR
+from pylabrobot.resources.well import Well
 
-
+from contextlib import asynccontextmanager, contextmanager
 class STARChatterboxBackend(STAR):
   """Chatterbox backend for "STAR" """
 
@@ -91,3 +92,29 @@ class STARChatterboxBackend(STAR):
 
   async def request_z_pos_channel_n(self, channel: int) -> float:
     return 285.0
+  
+  async def step_off_foil(
+    self, well: Well, front_channel: int, back_channel: int, move_inwards: float = 2
+  ):
+    print("stepping off foil")
+  
+  async def move_channel_y(self, channel: int, y: float):
+    """Move a channel safely in the y direction."""
+    print("moving channel in y")
+    
+  @asynccontextmanager
+  async def slow_iswap(self, wrist_velocity: int = 20_000, gripper_velocity: int = 20_000):
+    """A context manager that sets the iSWAP to slow speed during the context"""
+    assert 20 <= gripper_velocity <= 75_000
+    assert 20 <= wrist_velocity <= 65_000
+  
+    try:
+      print("start slow iswap")
+      yield
+    finally:
+      print("end slow iswap")
+      
+  async def pierce_foil(self, **kwargs):
+    print("piercing foil")
+    
+  

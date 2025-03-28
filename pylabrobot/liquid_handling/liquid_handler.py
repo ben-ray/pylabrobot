@@ -9,6 +9,7 @@ import json
 import logging
 import threading
 import warnings
+from functools import wraps
 from typing import (
   Any,
   Callable,
@@ -608,7 +609,23 @@ class LiquidHandler(Resource, Machine):
       error=error,
       **backend_kwargs,
     )
+    
+  def retry_on_channel_error(retries=3, delay=1):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            for i in range(retries):
+                try:
+                    return await func(*args, **kwargs)
+                except ChannelizedError as e:
+                    kwargs["use_channels"] = [int(ch) for ch in e.errors.keys()]
+                    if i == retries - 1:
+                        raise
+                    await asyncio.sleep(delay)
+        return wrapper
+    return decorator
 
+  @retry_on_channel_error()
   async def return_tips(
     self,
     use_channels: Optional[list[int]] = None,
@@ -717,6 +734,7 @@ class LiquidHandler(Resource, Machine):
       raise TypeError(f"Resources must be `Container`s, got {not_containers}")
 
   @need_setup_finished
+  @retry_on_channel_error()
   async def aspirate(
     self,
     resources: Sequence[Container],
@@ -829,8 +847,10 @@ class LiquidHandler(Resource, Machine):
       else:
         raise ValueError("Invalid value for 'spread'. Must be 'tight', 'wide', or 'custom'.")
 
+      print("user ", offsets)
       # add user defined offsets to the computed centers
       offsets = [c + o for c, o in zip(center_offsets, offsets)]
+      print("final", offsets)
 
     # liquid(s) for each channel. If volume tracking is disabled, use None as the liquid.
     liquids: List[List[Tuple[Optional[Liquid], float]]] = []
@@ -924,6 +944,7 @@ class LiquidHandler(Resource, Machine):
     )
 
   @need_setup_finished
+  @retry_on_channel_error()
   async def dispense(
     self,
     resources: Sequence[Container],
@@ -1917,6 +1938,14 @@ class LiquidHandler(Resource, Machine):
         resource.rotated(z=resource_rotation_wrt_destination_wrt_local)
       ).rotated(destination.get_absolute_rotation())
       to_location = destination.get_absolute_location() + adjusted_plate_anchor
+    elif isinstance(destination, ResourceHolder):
+      print("resource_rotation_wrt_destination_wrt_local", resource_rotation_wrt_destination_wrt_local)
+      x = destination.get_default_child_location(
+        resource.rotated(z=resource_rotation_wrt_destination_wrt_local)
+      )
+      print("shifted location", x)
+      to_location = destination.get_absolute_location() + x
+      print("to_location", to_location)
     elif isinstance(destination, Plate) and isinstance(resource, Lid):
       lid = resource
       plate_location = destination.get_absolute_location()

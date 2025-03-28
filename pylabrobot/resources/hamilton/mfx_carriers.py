@@ -81,7 +81,7 @@ def MFX_CAR_P3_SHAKER(name: str, modules: Dict[int, ResourceHolder]) -> MFXCarri
   locations = [
     Coordinate(26.85, 0, 8.0),
     Coordinate(26.85, 146.2 + 19.2, 8.0),
-    Coordinate(26.85, (146.2) * 2 + 19.2 + 12.6, 8.0),
+    Coordinate(26.85, (146.2) * 2 + 19.2 + 13.6, 8.0),
   ]
   sites: Dict[int, ResourceHolder] = {}
   for i, module in modules.items():
@@ -106,8 +106,8 @@ def MFX_CAR_P3_base(name: str, modules: Dict[int, ResourceHolder]) -> MFXCarrier
   """
   locations = [
     Coordinate(19.3, 33.7, 18.195),
-    Coordinate(19.3, 180.7, 18.195),
-    Coordinate(19.3, 327.7, 18.195),
+    Coordinate(19.3, 179.7, 18.195),
+    Coordinate(19.3, 325.7, 18.195),
   ]
   sites: Dict[int, ResourceHolder] = {}
   for i, module in modules.items():

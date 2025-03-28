@@ -390,6 +390,9 @@ class HamiltonLiquidHandler(LiquidHandlerBackend, metaclass=ABCMeta):
       y_pos = ops[i].resource.get_absolute_location(x="c", y="c", z="b").y + ops[i].offset.y
       y_positions.append(round(y_pos * 10))
 
+      print(x_pos)
+      print("y", y_pos)
+
     # check that the minimum d between any two y positions is >9mm
     # O(n^2) search is not great but this is most readable, and the max size is 16, so it's fine.
     for channel_idx1, (x1, y1) in enumerate(zip(x_positions, y_positions)):

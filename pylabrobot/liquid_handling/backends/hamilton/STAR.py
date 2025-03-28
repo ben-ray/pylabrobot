@@ -1130,8 +1130,8 @@ class STAR(HamiltonLiquidHandler):
     device_address: Optional[int] = None,
     serial_number: Optional[str] = None,
     packet_read_timeout: int = 3,
-    read_timeout: int = 30,
-    write_timeout: int = 30,
+    read_timeout: int = 120,
+    write_timeout: int = 120,
   ):
     """Create a new STAR interface.
 
@@ -1163,7 +1163,7 @@ class STAR(HamiltonLiquidHandler):
     self._core_parked: Optional[bool] = None
     self._extended_conf: Optional[dict] = None
     self._channel_traversal_height: float = 245.0
-    self._iswap_traversal_height: float = 284.0
+    self._iswap_traversal_height: float = 280.0
     self.core_adjustment = Coordinate.zero()
     self._unsafe = UnSafe(self)
 
@@ -1703,6 +1703,9 @@ class STAR(HamiltonLiquidHandler):
     """
 
     x_positions, y_positions, channels_involved = self._ops_to_fw_positions(ops, use_channels)
+    
+    print(x_positions)
+    print([op.resource for op in ops])
 
     n = len(ops)
 
@@ -2784,7 +2787,7 @@ class STAR(HamiltonLiquidHandler):
     plate_width: Optional[float] = None,
     use_unsafe_hotel: bool = False,
     iswap_collision_control_level: int = 0,
-    iswap_fold_up_sequence_at_the_end_of_process: bool = True,
+    iswap_fold_up_sequence_at_the_end_of_process: int = 1,
   ):
     if use_arm == "iswap":
       assert (
@@ -2864,7 +2867,7 @@ class STAR(HamiltonLiquidHandler):
           collision_control_level=iswap_collision_control_level,
           acceleration_index_high_acc=4 if high_speed else 1,
           acceleration_index_low_acc=1,
-          fold_up_sequence_at_the_end_of_process=iswap_fold_up_sequence_at_the_end_of_process,
+          iswap_fold_up_sequence_at_the_end_of_process=iswap_fold_up_sequence_at_the_end_of_process,
         )
     elif use_arm == "core":
       if use_unsafe_hotel:
@@ -2917,6 +2920,7 @@ class STAR(HamiltonLiquidHandler):
     hotel_high_speed=False,
     use_unsafe_hotel: bool = False,
     iswap_collision_control_level: int = 0,
+    iswap_fold_up_sequence_at_the_end_of_process: int = 1,
   ):
     # Get center of source plate in absolute space.
     # The computation of the center has to be rotated so that the offset is in absolute space.
@@ -3006,6 +3010,7 @@ class STAR(HamiltonLiquidHandler):
           z_position_at_the_command_end=round(z_position_at_the_command_end * 10),
           open_gripper_position=round(open_gripper_position * 10),
           collision_control_level=iswap_collision_control_level,
+          iswap_fold_up_sequence_at_the_end_of_process = iswap_fold_up_sequence_at_the_end_of_process,
         )
     elif use_arm == "core":
       if use_unsafe_hotel:
@@ -4054,7 +4059,8 @@ class STAR(HamiltonLiquidHandler):
       module="C0",
       command="TP",
       tip_pattern=tip_pattern,
-      read_timeout=max(120, self.read_timeout),
+      read_timeout=120,
+      write_timeout=120,
       xp=[f"{x:05}" for x in x_positions],
       yp=[f"{y:04}" for y in y_positions],
       tm=tip_pattern,
@@ -4129,6 +4135,7 @@ class STAR(HamiltonLiquidHandler):
       th=minimum_traverse_height_at_beginning_of_a_command,
       te=z_position_at_end_of_a_command,
       ti=discarding_method.value,
+      write_timeout=120,
     )
 
   # TODO:(command:TW) Tip Pick-up for DC wash procedure
@@ -4418,8 +4425,8 @@ class STAR(HamiltonLiquidHandler):
       se=[f"{se:04}" for se in dosing_drive_speed_during_2nd_section_search],
       sz=[f"{sz:04}" for sz in z_drive_speed_during_2nd_section_search],
       io=[f"{io:04}" for io in cup_upper_edge],
-      il=[f"{il:05}" for il in ratio_liquid_rise_to_tip_deep_in],
-      in_=[f"{in_:04}" for in_ in immersion_depth_2nd_section],
+      # il=[f"{il:05}" for il in ratio_liquid_rise_to_tip_deep_in],
+      # in_=[f"{in_:04}" for in_ in immersion_depth_2nd_section],
     )
 
   @need_iswap_parked
@@ -6441,7 +6448,7 @@ class STAR(HamiltonLiquidHandler):
     collision_control_level: int = 1,
     acceleration_index_high_acc: int = 4,
     acceleration_index_low_acc: int = 1,
-    fold_up_sequence_at_the_end_of_process: bool = True,
+    iswap_fold_up_sequence_at_the_end_of_process: int = 1,
   ):
     """Get plate using iswap.
 
@@ -6467,7 +6474,7 @@ class STAR(HamiltonLiquidHandler):
                                Default 1.
       acceleration_index_high_acc: acceleration index high acc. Must be between 0 and 4. Default 4.
       acceleration_index_low_acc: acceleration index high acc. Must be between 0 and 4. Default 1.
-      fold_up_sequence_at_the_end_of_process: fold up sequence at the end of process. Default True.
+      iswap_fold_up_sequence_at_the_end_of_process: fold up sequence at the end of process. Default True.
     """
 
     assert 0 <= x_position <= 30000, "x_position must be between 0 and 30000"
@@ -6513,7 +6520,7 @@ class STAR(HamiltonLiquidHandler):
       gt=f"{plate_width_tolerance:02}",
       ga=collision_control_level,
       # xe=f"{acceleration_index_high_acc} {acceleration_index_low_acc}",
-      gc=fold_up_sequence_at_the_end_of_process,
+      gc=iswap_fold_up_sequence_at_the_end_of_process,
     )
 
     # Once the command has completed successfully, set _iswap_parked to false
@@ -6535,6 +6542,7 @@ class STAR(HamiltonLiquidHandler):
     collision_control_level: int = 1,
     acceleration_index_high_acc: int = 4,
     acceleration_index_low_acc: int = 1,
+    iswap_fold_up_sequence_at_the_end_of_process: int = 1
   ):
     """put plate
 
@@ -6559,6 +6567,7 @@ class STAR(HamiltonLiquidHandler):
             Default 4.
       acceleration_index_low_acc: acceleration index high acc. Must be between 0 and 4.
             Default 1.
+      iswap_fold_up_sequence_at_the_end_of_process: fold up sequence at the end of process. Default True.
     """
 
     assert 0 <= x_position <= 30000, "x_position must be between 0 and 30000"
@@ -6598,6 +6607,7 @@ class STAR(HamiltonLiquidHandler):
       go=f"{open_gripper_position:04}",
       ga=collision_control_level,
       # xe=f"{acceleration_index_high_acc} {acceleration_index_low_acc}"
+      gc=iswap_fold_up_sequence_at_the_end_of_process
     )
 
     # Once the command has completed successfully, set _iswap_parked to false
@@ -6709,7 +6719,7 @@ class STAR(HamiltonLiquidHandler):
   async def collapse_gripper_arm(
     self,
     minimum_traverse_height_at_beginning_of_a_command: int = 3600,
-    fold_up_sequence_at_the_end_of_process: bool = True,
+    iswap_fold_up_sequence_at_the_end_of_process: int = 1,
   ):
     """Collapse gripper arm
 
@@ -6717,7 +6727,7 @@ class STAR(HamiltonLiquidHandler):
       minimum_traverse_height_at_beginning_of_a_command: Minimum traverse height at beginning of a
                                                          command 0.1mm]. Must be between 0 and 3600.
                                                          Default 3600.
-      fold_up_sequence_at_the_end_of_process: fold up sequence at the end of process. Default True.
+      iswap_fold_up_sequence_at_the_end_of_process: fold up sequence at the end of process. Default True.
     """
 
     assert (
@@ -6728,7 +6738,7 @@ class STAR(HamiltonLiquidHandler):
       module="C0",
       command="PN",
       th=minimum_traverse_height_at_beginning_of_a_command,
-      gc=fold_up_sequence_at_the_end_of_process,
+      gc=iswap_fold_up_sequence_at_the_end_of_process,
     )
 
   # -------------- 3.17.3 Hotel handling commands --------------
@@ -7744,14 +7754,16 @@ class STAR(HamiltonLiquidHandler):
           well, num_channels=len(piercing_channels)
         )
       ys = [y + offset.y for offset in offsets]
+
+      print("x", x)
+      print("ys", ys)
     else:
       assert (
         len(set(w.get_absolute_location().x for w in wells)) == 1
       ), "Wells must be on the same column"
-      absolute_center = wells[0].get_absolute_location("c", "c", "cavity_bottom")
-      x = absolute_center.x
-      ys = [well.get_absolute_location(x="c", y="c").y for well in wells]
-      z = absolute_center.z
+      x = wells[0].get_absolute_location().x
+      ys = [well.get_absolute_location().y for well in wells]
+      z = wells[0].get_absolute_location(z="cavity_bottom").z
 
     await self.move_channel_x(0, x=x)
 
