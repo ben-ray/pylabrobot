@@ -89,6 +89,10 @@ class HamiltonHeatShaker(HeaterShakerBackend):
 
     response = await loop.run_in_executor(self._usb_executor, write_and_read)
     return response
+  
+  async def initialize_shaker_drive(self):
+    """Initialize the shaker drive, homing to absolute position 0"""
+    return await self._send_command("SI")
 
   async def shake(
     self,
@@ -106,7 +110,7 @@ class HamiltonHeatShaker(HeaterShakerBackend):
     assert direction in [0, 1], "Direction must be 0 or 1"
     assert 500 <= acceleration <= 10_000, "Acceleration must be between 500 and 10_000"
 
-    await self._start_shaking(direction=direction, speed=int_speed, acceleration=acceleration)
+    return await self._start_shaking(direction=direction, speed=int_speed, acceleration=acceleration)
 
   async def stop_shaking(self):
     """Shaker `stop_shaking` implementation."""
