@@ -1704,8 +1704,6 @@ class STAR(HamiltonLiquidHandler):
 
     x_positions, y_positions, channels_involved = self._ops_to_fw_positions(ops, use_channels)
     
-    print(x_positions)
-    print([op.resource for op in ops])
 
     n = len(ops)
 
@@ -7755,8 +7753,6 @@ class STAR(HamiltonLiquidHandler):
         )
       ys = [y + offset.y for offset in offsets]
 
-      print("x", x)
-      print("ys", ys)
     else:
       assert (
         len(set(w.get_absolute_location().x for w in wells)) == 1
