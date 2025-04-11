@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional, Union
 
 from pylabrobot.liquid_handling.backends import LiquidHandlerBackend
 from pylabrobot.liquid_handling.backends.hamilton.STAR import STAR
@@ -94,7 +94,7 @@ class STARChatterboxBackend(STAR):
     return 285.0
   
   async def step_off_foil(
-    self, well: Well, front_channel: int, back_channel: int, move_inwards: float = 2
+    self, wells: Union[Well, List[Well]], front_channel: int, back_channel: int, move_inwards: float = 2, move_height: float = 15,
   ):
     print("stepping off foil")
   

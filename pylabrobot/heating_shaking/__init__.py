@@ -3,3 +3,4 @@
 from pylabrobot.heating_shaking.backend import HeaterShakerBackend
 from pylabrobot.heating_shaking.heater_shaker import HeaterShaker
 from pylabrobot.heating_shaking.inheco import InhecoThermoShake
+from pylabrobot.heating_shaking.hamilton import HamiltonHeatShaker
