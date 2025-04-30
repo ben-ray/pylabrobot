@@ -51,10 +51,15 @@ class HamiltonHeaterShakerBox(HamiltonHeaterShakerInterface):
     await self.io.stop()
 
   async def send_hhs_command(self, index: int, command: str, **kwargs) -> str:
-    args = "".join([f"{key}{value}" for key, value in kwargs.items()])
+    """
+    Send a heater-shaker command over the serial interface and return the decoded response.
+    """
+    args = "".join(f"{key}{value}" for key, value in kwargs.items())
     id_ = str(self._generate_id()).zfill(4)
-    self.io.write(f"T{index}{command}id{id_}{args}".encode())
-    return self.io.read().decode("utf-8")
+    message = f"T{index}{command}id{id_}{args}".encode()
+    await self.io.write(message)
+    raw = await self.io.read()
+    return raw.decode("utf-8")
 
 
 class HamiltonHeaterShakerBackend(HeaterShakerBackend):
