@@ -4419,8 +4419,8 @@ class STARBackend(HamiltonLiquidHandler, HamiltonHeaterShakerInterface):
       se=[f"{se:04}" for se in dosing_drive_speed_during_2nd_section_search],
       sz=[f"{sz:04}" for sz in z_drive_speed_during_2nd_section_search],
       io=[f"{io:04}" for io in cup_upper_edge],
-      il=[f"{il:05}" for il in ratio_liquid_rise_to_tip_deep_in],
-      in_=[f"{in_:04}" for in_ in immersion_depth_2nd_section],
+      # il=[f"{il:05}" for il in ratio_liquid_rise_to_tip_deep_in],
+      # in_=[f"{in_:04}" for in_ in immersion_depth_2nd_section],
     )
 
   @need_iswap_parked

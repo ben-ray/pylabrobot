@@ -97,6 +97,7 @@ class CytomatBackend(IncubatorBackend):
     return command
 
   async def send_command(self, command_type: str, command: str, params: str) -> str:
+    print(command_type, command, params)
     async def _send_command(command_str) -> str:
       logging.debug(command_str.encode(self.serial_message_encoding))
       await self.io.write(command_str.encode(self.serial_message_encoding))
