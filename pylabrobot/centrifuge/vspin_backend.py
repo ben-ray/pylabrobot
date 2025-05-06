@@ -254,6 +254,10 @@ class VSpinBackend(CentrifugeBackend):
 
     self._bucket_1_position = (await self.get_position()) + self.calibration_offset
 
+    await self.go_to_bucket1()
+    await self.lock_bucket()
+    await self.open_door()
+
   async def stop(self):
     await self.send(b"\xaa\x02\x0e\x10")
     await self.configure_and_initialize()
@@ -491,6 +495,11 @@ class VSpinBackend(CentrifugeBackend):
     ]
 
     await self.send_payloads(payloads)
+    await self.setup() # for reliable self-homing?
+    await self.go_to_bucket1()
+    await self.lock_bucket()
+    await self.open_door()
+
 
 
 # Deprecated alias with warning # TODO: remove mid May 2025 (giving people 1 month to update)
