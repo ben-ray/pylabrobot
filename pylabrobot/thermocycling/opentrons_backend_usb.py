@@ -104,11 +104,24 @@ async def execute_cycles(
       )
 
 
+def _format_port_identifier(port) -> str:
+  vid = getattr(port, "vid", None)
+  pid = getattr(port, "pid", None)
+  if vid is None or pid is None:
+    return f"{port.device} (VID:None PID:None)"
+  return f"{port.device} (VID:{vid:04x} PID:{pid:04x})"
+
+
+SUPPORTED_USB_IDS = {
+  (0x04D8, 0xED8C),  # legacy Microchip bridge
+  (0x0483, 0xED8D),  # STMicroelectronics bridge seen in newer units
+}
+
+
 class OpentronsThermocyclerUSBBackend(ThermocyclerBackend):
   """USB backend for the Opentrons GEN-1/GEN-2 Thermocycler."""
 
-  TARGET_VID = 0x04D8
-  TARGET_PID = 0xED8C
+  TARGET_VID, TARGET_PID = next(iter(SUPPORTED_USB_IDS))
 
   def __init__(self, port: Optional[str] = None):
     """Create a new USB backend bound to a specific port."""
@@ -120,12 +133,28 @@ class OpentronsThermocyclerUSBBackend(ThermocyclerBackend):
 
     if port is None:
       ports = serial.tools.list_ports.comports()
-      opentrons_ports = [p for p in ports if p.vid == self.TARGET_VID and p.pid == self.TARGET_PID]
+
+      def _matches_known_ids(p) -> bool:
+        return p.vid is not None and p.pid is not None and (p.vid, p.pid) in SUPPORTED_USB_IDS
+
+      opentrons_ports = [p for p in ports if _matches_known_ids(p)]
+
+      # Fall back to description-based detection if IDs don't match but description hints at a thermocycler.
+      if not opentrons_ports:
+        opentrons_ports = [
+          p for p in ports if "thermocycler" in getattr(p, "description", "").lower()
+        ]
+
       if opentrons_ports:
+        # Prefer ports whose VID/PID we explicitly recognise.
+        opentrons_ports.sort(key=lambda p: (not _matches_known_ids(p), p.device))
         self.port = opentrons_ports[0].device
       else:
+        connected = ", ".join(_format_port_identifier(p) for p in ports) or "none"
+        supported = ", ".join(f"{vid:04x}:{pid:04x}" for vid, pid in SUPPORTED_USB_IDS)
         raise RuntimeError(
-          f"No Opentrons Thermocycler found with VID:PID {self.TARGET_VID:04x}:{self.TARGET_PID:04x}"
+          "No Opentrons Thermocycler found. "
+          f"Supported VID:PID values: {supported}. Connected USB devices: {connected}"
         )
     else:
       self.port = port
