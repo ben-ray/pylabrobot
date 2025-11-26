@@ -9,7 +9,7 @@ from abc import ABCMeta
 from base64 import b64decode
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, cast
-from xml.dom import minidom``
+from xml.dom import minidom
 
 from pylabrobot.io import Socket
 from pylabrobot.thermocycling.backend import ThermocyclerBackend
